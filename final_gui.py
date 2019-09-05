@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import difflib
 
+# Importing necessary data
 final_df_songs = pd.read_csv('final_df_songs.csv')
 cos_sim_songs = np.load('cos_sim_songs.npy')
 final_df = pd.read_csv('final_df_books.csv')
@@ -11,7 +12,7 @@ final_df_movies = pd.read_csv('final_df_movies.csv')
 cos_sim_movies = np.load('cos_sim_movies.npy')
 
 
-
+# PyQt5 GUI Code
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -61,7 +62,9 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+    
+    #Recommending  Functions for each category
+    
     def recommendation_movies(self):  
         movie = str(self.query.text()).lower()
         all_per = []
@@ -86,10 +89,6 @@ class Ui_MainWindow(object):
         final_idx = pd.concat([final_recomm[0], final_recomm[1]]).sort_values(ascending=False).index
         final_recomm = final_df_movies.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['original_title'].duplicated()]['original_title']
-
-        final = ""
-        for word in list(final_recomm):
-            final = final + "\n" + word
 
         self.textEdit.clear()
         self.textEdit.append(" \n ".join(list(final_recomm[:15])))  
@@ -119,10 +118,6 @@ class Ui_MainWindow(object):
         final_recomm = final_df.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['book_title'].duplicated()]['book_title']
 
-        final = ""
-        for word in list(final_recomm):
-            final = final + "\n" + word
-
         self.textEdit.clear()
         self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
@@ -151,15 +146,11 @@ class Ui_MainWindow(object):
         final_idx = pd.concat([final_recomm[0], final_recomm[1]]).sort_values(ascending=False).index
         final_recomm = final_df_songs.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['track_name'].duplicated()]['track_name']
-
-        final = ""
-        for word in list(final_recomm):
-            final = final + "\n" + word
-
+        
         self.textEdit.clear()
         self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
-
+    # Selection of recommending function on the basis of category chosen by user
     def recommendation(self):
         category = str(self.category.currentText())
 
