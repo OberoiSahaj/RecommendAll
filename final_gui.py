@@ -62,7 +62,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def recommendation_movies(self):  # ", ".join(list(self.recommendation()))
+    def recommendation_movies(self):  
         movie = str(self.query.text()).lower()
         all_per = []
         for movies in final_df_movies['original_title'].str.lower():
@@ -92,9 +92,9 @@ class Ui_MainWindow(object):
             final = final + "\n" + word
 
         self.textEdit.clear()
-        self.textEdit.append(" \n ".join(list(final_recomm[:15])))  # ", ".join(list(self.final_recomm))
+        self.textEdit.append(" \n ".join(list(final_recomm[:15])))  
 
-    def recommendation_books(self):  # ", ".join(list(self.recommendation()))
+    def recommendation_books(self):  
         book = str(self.query.text()).lower()
         all_per = []
         for books in final_df['book_title'].str.lower():
@@ -124,10 +124,10 @@ class Ui_MainWindow(object):
             final = final + "\n" + word
 
         self.textEdit.clear()
-        self.textEdit.append(" \n ".join(list(final_recomm)))  # ", ".join(list(self.final_recomm))
+        self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
 
-    def recommendation_songs(self):  # ", ".join(list(self.recommendation()))
+    def recommendation_songs(self): 
         song = str(self.query.text()).lower()
         all_per = []
         for songs in final_df_songs['track_name'].str.lower():
@@ -157,8 +157,7 @@ class Ui_MainWindow(object):
             final = final + "\n" + word
 
         self.textEdit.clear()
-        self.textEdit.append(" \n ".join(list(final_recomm)))  # ", ".join(list(self.final_recomm))
-
+        self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
 
     def recommendation(self):
