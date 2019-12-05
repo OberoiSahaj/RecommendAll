@@ -1,18 +1,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
 import pandas as pd
-import difflib
+from fuzzywuzzy import fuzz
 
-# Importing necessary data
 final_df_songs = pd.read_csv('final_df_songs.csv')
 cos_sim_songs = np.load('cos_sim_songs.npy')
 final_df = pd.read_csv('final_df_books.csv')
 cos_sim = np.load('cos_sim_books.npy')
 final_df_movies = pd.read_csv('final_df_movies.csv')
-cos_sim_movies = np.load('cos_sim_movies.npy')
+cos_sim_movies = np.load('cos_sim_movies2.npz') #Trying compressed cosine numpy file
+cos_sim_movies= cos_sim_movies.f.arr_0
 
-
-# PyQt5 GUI Code
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -62,16 +60,13 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-    
-    #Recommending  Functions for each category
-    
-    def recommendation_movies(self):  
+
+    def recommendation_movies(self):
+
         movie = str(self.query.text()).lower()
         all_per = []
         for movies in final_df_movies['original_title'].str.lower():
-            seq = difflib.SequenceMatcher(isjunk=None, a=movie, b=movies).ratio()
-            per = round(seq * 100, 2)
-            all_per.append(per)
+            all_per.append(fuzz.token_set_ratio(movie, movies))
 
         final_query = final_df_movies['original_title'].iloc[(pd.Series(all_per).sort_values(ascending=False)[:2].index)]
         idx = []
@@ -90,16 +85,18 @@ class Ui_MainWindow(object):
         final_recomm = final_df_movies.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['original_title'].duplicated()]['original_title']
 
-        self.textEdit.clear()
-        self.textEdit.append(" \n ".join(list(final_recomm[:15])))  
+        final = ""
+        for word in list(final_recomm):
+            final = final + "\n" + word
 
-    def recommendation_books(self):  
+        self.textEdit.clear()
+        self.textEdit.append(" \n ".join(list(final_recomm[:15])))
+
+    def recommendation_books(self):
         book = str(self.query.text()).lower()
         all_per = []
         for books in final_df['book_title'].str.lower():
-            seq = difflib.SequenceMatcher(isjunk=None, a=book, b=books).ratio()
-            per = round(seq * 100, 2)
-            all_per.append(per)
+            all_per.append(fuzz.token_set_ratio(book, books))
 
         final_query = final_df['book_title'].iloc[(pd.Series(all_per).sort_values(ascending=False)[:2].index)]
         idx = []
@@ -118,17 +115,19 @@ class Ui_MainWindow(object):
         final_recomm = final_df.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['book_title'].duplicated()]['book_title']
 
+        final = ""
+        for word in list(final_recomm):
+            final = final + "\n" + word
+
         self.textEdit.clear()
         self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
 
-    def recommendation_songs(self): 
+    def recommendation_songs(self):  # ", ".join(list(self.recommendation()))
         song = str(self.query.text()).lower()
         all_per = []
         for songs in final_df_songs['track_name'].str.lower():
-            seq = difflib.SequenceMatcher(isjunk=None, a=song, b=songs).ratio()
-            per = round(seq * 100, 2)
-            all_per.append(per)
+            all_per.append(fuzz.token_set_ratio(song, songs))
 
         final_query = final_df_songs['track_name'].iloc[(pd.Series(all_per).sort_values(ascending=False)[:2].index)]
         idx = []
@@ -146,11 +145,15 @@ class Ui_MainWindow(object):
         final_idx = pd.concat([final_recomm[0], final_recomm[1]]).sort_values(ascending=False).index
         final_recomm = final_df_songs.iloc[final_idx]
         final_recomm = final_recomm[~final_recomm['track_name'].duplicated()]['track_name']
-        
+
+        final = ""
+        for word in list(final_recomm):
+            final = final + "\n" + word
+
         self.textEdit.clear()
         self.textEdit.append(" \n ".join(list(final_recomm[:15])))
 
-    # Selection of recommending function on the basis of category chosen by user
+
     def recommendation(self):
         category = str(self.category.currentText())
 
@@ -163,7 +166,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "RecommendAll"))
         self.runn.setText(_translate("MainWindow", "RUN"))
         self.label_1.setText(_translate("MainWindow", "Recommendation for:"))
         self.label_2.setText(_translate("MainWindow", "Result:"))
